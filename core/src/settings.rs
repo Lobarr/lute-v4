@@ -116,6 +116,7 @@ impl Settings {
       .set_default("parser.retry_concurrency", 20)?
       .set_default("tracing.name", "core")?
       .set_default("tracing.namespace", "lute")?
+      .set_default("tracing.labels", HashMap::<String, String>::new())?
       .build()?
       .try_deserialize()
   }
