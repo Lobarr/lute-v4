@@ -13,11 +13,17 @@ pub fn setup_tracing(tracing_settings: &TracingSettings) -> Result<()> {
     .with_timeout(Duration::from_secs(3))
     .with_endpoint(&tracing_settings.otel_collector_endpoint);
 
-  let trace_config = trace::Config::default().with_resource(Resource::new(vec![
-    opentelemetry::KeyValue::new("service.namespace", "lute"),
-    opentelemetry::KeyValue::new("service.name", "core"),
+  let mut labels = vec![
+    opentelemetry::KeyValue::new("service.namespace", tracing_settings.namespace.clone()),
+    opentelemetry::KeyValue::new("service.name", tracing_settings.name.clone()),
     opentelemetry::KeyValue::new("host.name", tracing_settings.host_name.clone()),
-  ]));
+  ];
+
+  for (key, value) in tracing_settings.labels.iter() {
+    labels.push(opentelemetry::KeyValue::new(key.clone(), value.clone()));
+  }
+
+  let trace_config = trace::Config::default().with_resource(Resource::new(labels));
 
   let tracer = opentelemetry_otlp::new_pipeline()
     .tracing()
